@@ -47,7 +47,7 @@ services:
     #      PHP_XDEBUG_REMOTE_HOST: 10.254.254.254 # macOS
     #      PHP_XDEBUG_REMOTE_HOST: 10.0.75.1 # Windows
     volumes:
-    - ./:/var/www/html:cached
+    - $PROJECT_DOCROOT:/var/www/html:cached
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/php/local#docker-for-mac
 #    - mutagen:/var/www/html
 ## For XHProf and Xdebug profiler traces
@@ -65,7 +65,7 @@ services:
       NGINX_VHOST_PRESET: php
       NGINX_SERVER_ROOT: /var/www/html/public
     volumes:
-    - ./:/var/www/html:cached
+    - $PROJECT_DOCROOT:/var/www/html:cached
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/php/local#docker-for-mac
 #    - mutagen:/var/www/html
     labels:
@@ -82,7 +82,7 @@ services:
 #      APACHE_VHOST_PRESET: php
 #      APACHE_DOCUMENT_ROOT: /var/www/html/public
 #    volumes:
-#    - ./:/var/www/html:cached
+#    - $PROJECT_DOCROOT:/var/www/html:cached
 ### Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/php/local#docker-for-mac
 ##    - mutagen:/var/www/html
 #    labels:
@@ -102,7 +102,7 @@ services:
 #      CRONTAB: "0 * * * * echo 'cron test'"
 #    command: sudo -E LD_PRELOAD=/usr/lib/preloadable_libiconv.so crond -f -d 0
 #    volumes:
-#    - ./:/var/www/html:cached
+#    - $PROJECT_DOCROOT:/var/www/html:cached
 
 #  varnish:
 #    image: wodby/varnish:$VARNISH_TAG

@@ -4,66 +4,80 @@ include .env
 
 default: up
 
-DC_FILES = -f docker-compose.yml
+STACK = -f docker-compose.yml
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-	DC_FILES := $(DC_FILES) -f docker-compose.override.mac.yml
+	STACK := $(STACK) -f docker-compose.override.mac.yml
 endif
 
-ifeq ($(TRAEFIK),ON)
-	DC_FILES := $(DC_FILES) -f docker-compose.override.traefik.yml
+ifeq ($(TRAEFIK),OFF)
+	STACK := $(STACK) -f docker-compose.override.traefik.yml
 endif
 
 ifeq ($(XDEBUG),ON)
-	DC_FILES := $(DC_FILES) -f docker-compose.override.xdebug.yml
+	STACK := $(STACK) -f docker-compose.override.xdebug.yml
 endif
 
 ifneq ("$(wildcard docker-compose.override.yml)","")
-    DC_FILES := $(DC_FILES) -f docker-compose.override.yml
+    STACK := $(STACK) -f docker-compose.override.yml
 endif
 
 ## help	:	Print commands help.
+.PHONY: help
+ifneq (,$(wildcard docker.mk))
 help : docker.mk
 	@sed -n 's/^##//p' $<
+else
+help : Makefile
+	@sed -n 's/^##//p' $<
+endif
 
 ## up	:	Start up containers.
+.PHONY: up
 up:
-	@echo "Starting up containers for for $(PROJECT_NAME)..."
-	docker-compose pull
-	docker-compose up -d --remove-orphans
+	@echo "Starting up containers for $(PROJECT_NAME)..."
+	docker-compose $(STACK) pull
+	docker-compose $(STACK) up -d --remove-orphans
 
+.PHONY: mutagen
 mutagen:
-	docker-compose up -d mutagen
+	docker-compose $(STACK) up -d mutagen
 	mutagen project start -f mutagen/config.yml
 
 ## down	:	Stop containers.
+.PHONY: down
 down: stop
 
 ## start	:	Start containers without updating.
+.PHONY: start
 start:
 	@echo "Starting containers for $(PROJECT_NAME) from where you left off..."
-	@docker-compose start
+	@docker-compose $(STACK) start
 
 ## stop	:	Stop containers.
+.PHONY: stop
 stop:
 	@echo "Stopping containers for $(PROJECT_NAME)..."
-	@docker-compose stop
+	@docker-compose $(STACK) stop
 
 ## prune	:	Remove containers and their volumes.
 ##		You can optionally pass an argument with the service name to prune single container
 ##		prune mariadb	: Prune `mariadb` container and remove its volumes.
 ##		prune mariadb solr	: Prune `mariadb` and `solr` containers and remove their volumes.
+.PHONY: prune
 prune:
 	@echo "Removing containers for $(PROJECT_NAME)..."
-	@docker-compose down -v $(filter-out $@,$(MAKECMDGOALS))
+	@docker-compose $(STACK) down -v $(filter-out $@,$(MAKECMDGOALS))
 
 ## ps	:	List running containers.
+.PHONY: ps
 ps:
 	@docker ps --filter name='$(PROJECT_NAME)*'
 
 ## shell	:	Access `php` container via shell.
 ##		You can optionally pass an argument with a service name to open a shell on the specified container
+.PHONY: shell
 shell:
 	docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(shell docker ps --filter name='$(PROJECT_NAME)_$(or $(filter-out $@,$(MAKECMDGOALS)), 'php')' --format "{{ .ID }}") sh
 
@@ -71,8 +85,9 @@ shell:
 ##		You can optinally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.
 ##		logs nginx php	: View `nginx` and `php` containers logs.
+.PHONY: logs
 logs:
-	@docker-compose logs -f $(filter-out $@,$(MAKECMDGOALS))
+	@docker-compose $(STACK) logs -f $(filter-out $@,$(MAKECMDGOALS))
 
 # https://stackoverflow.com/a/6273809/1826109
 %:

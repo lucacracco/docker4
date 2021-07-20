@@ -8,13 +8,16 @@ Docker4 is a set of docker stack optimized for my local project how:
 Based images of [Wodby](https://github.com/wodby).
 
 **How can activate xdebug?**
+
 Copy the content of `docker-compose.override.xdebug.yml` to `docker-compose.override.yml` and customized it.
 Remove comments to activate the part of xDebug interested.
 
 **How can disable traefik?**
+
 Copy the content of `docker-compose.override.traefik.yml` to `docker-compose.override.yml`.
 
 **I have the macOS**
+
 I'm sorry, I'm using Linux ;)
 You can activate the "mutagen" system. See https://wodby.com/docs/1.0/stacks/drupal/local/#docker-for-mac.
 Follow the instructions for activate the external volume.

@@ -62,6 +62,12 @@ ps:
 shell:
 	docker exec -ti -e COLUMNS=$(shell tput cols) -e LINES=$(shell tput lines) $(shell docker ps --filter name='$(PROJECT_NAME)_$(or $(filter-out $@,$(MAKECMDGOALS)), 'php')' --format "{{ .ID }}") bash
 
+## analyze	:	Analyze code project.
+##		You can analyze code with custom docker container that use phpqa.
+.PHONY: analyze
+analyze:
+	docker run -it -u $$(id -u) --rm -v `pwd`/../:/app lucacracco/phpqa:latest bash
+
 ## logs	:	View containers logs.
 ##		You can optinally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.
